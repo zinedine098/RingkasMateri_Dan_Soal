@@ -1,0 +1,2 @@
+const API_KEY = "ISI_API_KEY_KAMU";
+

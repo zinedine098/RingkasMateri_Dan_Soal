@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Guru Pendamping Sekolah — Demo</title>
+  <style>
+    /* Simple, clean styling. Ubah sesuai selera. */
+    :root{--bg:#0f172a;--card:#111827;--muted:#9ca3af;--accent:#7c3aed}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#e6eef8;background:linear-gradient(180deg,#071129 0%, #071a2a 100%);}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px;display:grid;grid-template-columns:360px 1fr;gap:18px}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    h1{font-size:18px;margin:0}
+    .card{background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+    .sidebar .card{display:flex;flex-direction:column;gap:10px}
+    label{font-size:13px;color:var(--muted)}
+    input[type=file]{width:100%}
+    textarea,input,select,button{font-family:inherit}
+    textarea{width:100%;min-height:120px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .actions{display:flex;gap:8px}
+    button{background:var(--accent);border:none;color:white;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .section{margin-bottom:12px}
+    .history{max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+    .history-item{background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);padding:8px;border-radius:8px;font-size:13px}
+    .main{display:flex;flex-direction:column;gap:12px}
+    .row{display:flex;gap:10px}
+    .panel{padding:12px;border-radius:12px;background:rgba(255,255,255,0.02)}
+    .controls{display:flex;gap:8px;align-items:center}
+    .small{font-size:13px;padding:6px 8px;border-radius:8px}
+    .card-title{font-weight:600;font-size:14px;margin-bottom:6px}
+    .flex{display:flex;gap:8px}
+    footer{grid-column:1/-1;margin-top:6px;color:var(--muted);font-size:13px;text-align:center}
+    .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:12px}
+    a{color:inherit}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>AI Guru Pendamping Sekolah</h1>
+        <div class="muted">Versi demo — HTML + CSS + JavaScript (no backend required)</div>
+      </div>
+      <div class="controls">
+        <div class="badge">LocalStorage · LLM API</div>
+        <button id="openSettingsBtn" class="small">Settings</button>
+      </div>
+    </header>
+
+    <!-- SIDEBAR: Upload, History, Settings -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-title">1) Upload Materi</div>
+        <div class="section">
+          <label for="fileInput">Pilih file (PDF / TXT)</label>
+          <input id="fileInput" type="file" accept=".pdf,.txt" />
+          <div class="muted" style="margin-top:6px">Jika PDF, sistem akan mengekstrak teks (menggunakan pdf.js CDN). Untuk file teks, cukup terbaca langsung.</div>
+        </div>
+
+        <div class="section">
+          <label for="titleInput">Judul Materi (opsional)</label>
+          <input id="titleInput" placeholder="Contoh: Bab 1 - Sistem Pencernaan" class="small" style="width:100%" />
+        </div>
+
+        <div class="actions">
+          <button id="processBtn">Proses Materi</button>
+          <button id="clearBtn" style="background:#374151">Hapus</button>
+        </div>
+
+        <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0">
+
+        <div class="card-title">Riwayat Belajar</div>
+        <div class="history" id="historyList"></div>
+
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-title">Quick Actions</div>
+        <div class="flex" style="flex-direction:column">
+          <button id="exportBtn" class="small">Export Ringkasan & Soal (.json)</button>
+          <button id="downloadPDFSummary" class="small" style="background:#0ea5a4">Download Ringkasan (TXT)</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="card panel">
+        <div class="card-title">Preview Materi</div>
+        <div id="preview" style="white-space:pre-wrap;max-height:220px;overflow:auto;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px"></div>
+      </div>
+
+      <div class="card panel row">
+        <div style="flex:1">
+          <div class="card-title">Ringkasan Otomatis</div>
+          <textarea id="summary" placeholder="Ringkasan akan muncul di sini..."></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="regenerateSummary" class="small">Regenerate</button></div>
+        </div>
+
+        <div style="width:420px">
+          <div class="card-title">Soal Latihan (Auto)</div>
+          <textarea id="questions" placeholder="Soal & kunci jawaban akan muncul di sini..."></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="regenerateQuestions" class="small">Regenerate</button></div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="card-title">Guru Virtual — Tanya & Jawab</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="userQuestion" placeholder="Tanyakan sesuatu tentang materi ini..." style="flex:1" />
+          <button id="askBtn">Tanya</button>
+        </div>
+        <div id="answer" style="white-space:pre-wrap;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;min-height:60px"></div>
+      </div>
+
+      <div class="card panel">
+        <div class="card-title">Catatan Teknis (untuk developer)</div>
+        <ol style="margin:0;padding-left:16px;color:var(--muted)">
+          <li>Masukkan API Key LLM di Settings (disimpan di localStorage)</li>
+          <li>Default endpoint untuk OpenAI v1 ChatCompletions. Edit di bagian <code>callAI()</code> jika pakai provider berbeda.</li>
+          <li>Semua data pengguna disimpan di <code>localStorage</code>. Tidak ada backend pada demo ini.</li>
+        </ol>
+      </div>
+
+    </main>
+
+    <footer>
+      Dibuat untuk demo — silakan modifikasi. Jika ingin saya kirim file ZIP atau versi terpisah (index + pdf.js), beri tahu.
+    </footer>
+  </div>
+
+  <!-- pdf.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+  <script>
+    /* ==========================
+       Simple single-file app JS
+       - Mendukung: PDF / TXT
+       - Fitur: ringkasan, soal, QA, riwayat, export
+       - Catatan: ganti API endpoint & model sesuai LLM provider
+       ===========================*/
+
+    // ------- Utilities -------
+    const $ = id => document.getElementById(id);
+
+    function saveToLocal(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    function loadFromLocal(key, fallback=null){ try{ const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback }catch(e){return fallback} }
+
+    function showHistory(){
+      const list = $('historyList'); list.innerHTML = '';
+      const hist = loadFromLocal('ag_hist') || [];
+      hist.slice().reverse().forEach((item, idx)=>{
+        const el = document.createElement('div'); el.className='history-item';
+        el.innerHTML = `<strong>${item.title||'Materi tanpa judul'}</strong><div class='muted'>${new Date(item.t).toLocaleString()}</div><div style='margin-top:6px'>${(item.summary||'').slice(0,180)}${(item.summary && item.summary.length>180)?'...':''}</div><div style='display:flex;gap:6px;margin-top:8px'><button class='small' onclick='loadHistory(${hist.length-1-idx})'>Load</button><button class='small' onclick='deleteHistory(${hist.length-1-idx})' style='background:#b91c1c'>Delete</button></div>`;
+        list.appendChild(el);
+      });
+    }
+
+    function pushHistory(entry){
+      const hist = loadFromLocal('ag_hist') || [];
+      hist.push(entry);
+      // keep max 50
+      if(hist.length>50) hist.shift();
+      saveToLocal('ag_hist', hist);
+      showHistory();
+    }
+
+    function loadHistory(index){
+      const hist = loadFromLocal('ag_hist') || [];
+      const item = hist[index];
+      if(!item) return alert('Riwayat tidak ditemukan');
+      $('preview').innerText = item.text || '';
+      $('summary').value = item.summary || '';
+      $('questions').value = item.questions || '';
+      $('titleInput').value = item.title || '';
+      alert('Materi dimuat dari riwayat');
+    }
+
+    function deleteHistory(index){
+      const hist = loadFromLocal('ag_hist') || [];
+      hist.splice(index,1);
+      saveToLocal('ag_hist', hist);
+      showHistory();
+    }
+
+    // ------- File processing -------
+    async function extractTextFromPDF(file){
+      try{
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+        let text = '';
+        for(let i=1;i<=pdf.numPages;i++){
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          // join text items with spaces
+          const strs = content.items.map(i=>i.str);
+          text += strs.join(' ') + '\n\n';
+        }
+        return text;
+      }catch(e){console.error(e);throw new Error('Gagal mengekstrak PDF');}
+    }
+
+    async function processFile(){
+      const f = $('fileInput').files[0];
+      if(!f) return alert('Pilih file terlebih dulu');
+      $('processBtn').disabled = true; $('processBtn').innerText='Memproses...';
+      try{
+        let text='';
+        if(f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')){
+          text = await extractTextFromPDF(f);
+        } else {
+          text = await f.text();
+        }
+        $('preview').innerText = text.slice(0,2000) + (text.length>2000? '\n\n... (truncated preview)':'');
+        // save raw
+        saveToLocal('ag_current_text', text);
+        saveToLocal('ag_current_title', $('titleInput').value || f.name || 'Materi baru');
+        // auto-generate
+        await generateSummary();
+        await generateQuestions();
+        // push to history
+        pushHistory({t:Date.now(), title: $('titleInput').value || f.name, text, summary: $('summary').value, questions: $('questions').value});
+      }catch(e){alert('Error: '+ e.message)}
+      finally{ $('processBtn').disabled=false; $('processBtn').innerText='Proses Materi'; }
+    }
+
+    // ------- Simple chunking (by characters) -------
+    function chunkText(text, size=3000){
+      const chunks=[]; let i=0; while(i<text.length){chunks.push(text.slice(i,i+size)); i+=size;} return chunks;
+    }
+
+    // ------- API Call (ganti sesuai provider) -------
+    // NOTE: Anda perlu menyimpan API key di Settings sebelum memanggil.
+    async function callAI(prompt) {
+    const settings = JSON.parse(localStorage.getItem("ag_settings") || "{}");
+    const API_KEY = settings.apiKey;
+    const model = "z-ai/glm-4.5-air";  // nama model yang benar di OpenRouter
+
+    const body = {
+        model: model,
+        messages: [
+        { role: "system", content: "You are a helpful teacher." },
+        { role: "user", content: prompt }
+        ],
+        // bisa menambahkan konfigurasi ekstra jika didukung:
+        reasoning: { enabled: settings.reasoningEnabled ?? false },
+        temperature: settings.temperature ?? 0.7,
+        max_tokens: settings.maxTokens ?? 1024
+    };
+
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error("OpenRouter API error: " + err);
+    }
+
+    const data = await res.json();
+    // Struktur respons biasanya mirip OpenAI:
+    return data.choices[0].message.content;
+    }
+
+    // ------- High-level features -------
+    async function generateSummary(){
+      const text = loadFromLocal('ag_current_text');
+      if(!text) return alert('Tidak ada materi. Upload file terlebih dulu.');
+      $('regenerateSummary').disabled=true; $('regenerateSummary').innerText='Menghasilkan...';
+      try{
+        // if text is huge, summarize in chunks then combine
+        const chunks = chunkText(text, 2500);
+        const summaries = [];
+        for(const c of chunks){
+          const prompt = `Ringkas materi berikut menjadi ringkasan pelajar (bahasa Indonesia) sekitar 6-10 poin utama. Gunakan bahasa mudah dipahami siswa:\n\n${c}`;
+          const s = await callAI(prompt,{max_tokens:400});
+          summaries.push(s);
+        }
+        // gabungkan dan ringkas lagi
+        const combined = summaries.join('\n\n');
+        const final = await callAI(`Gabungkan ringkasan-ringkasan berikut menjadi satu ringkasan terstruktur 8-12 kalimat, gunakan bahasa yang mudah dipahami siswa:\n\n${combined}`, {max_tokens:500});
+        $('summary').value = final;
+        saveToLocal('ag_current_summary', final);
+      }catch(e){alert('Gagal membuat ringkasan: '+ e.message)}
+      finally{ $('regenerateSummary').disabled=false; $('regenerateSummary').innerText='Regenerate'; }
+    }
+
+    async function generateQuestions(){
+      const text = loadFromLocal('ag_current_text');
+      if(!text) return alert('Tidak ada materi. Upload file terlebih dulu.');
+      $('regenerateQuestions').disabled=true; $('regenerateQuestions').innerText='Menghasilkan...';
+      try{
+        const prompt = `Dari materi ini, buatkan 7 soal latihan beserta jawaban singkat. Variasikan: 3 pilihan ganda (sertakan 4 opsi & jawaban benar), 2 soal isian singkat, 2 soal esai pendek yang bisa dinilai. Berikan juga kunci jawaban. Materi:\n\n${text}`;
+        const resp = await callAI(prompt,{max_tokens:700});
+        $('questions').value = resp;
+        saveToLocal('ag_current_questions', resp);
+      }catch(e){alert('Gagal membuat soal: '+ e.message)}
+      finally{ $('regenerateQuestions').disabled=false; $('regenerateQuestions').innerText='Regenerate'; }
+    }
+
+    async function askAI(){
+      const q = $('userQuestion').value.trim();
+      if(!q) return alert('Tulis pertanyaan dulu');
+      $('askBtn').disabled=true; $('askBtn').innerText='Menjawab...';
+      try{
+        const text = loadFromLocal('ag_current_text') || '';
+        const prompt = `Anda adalah guru virtual. Berdasarkan materi berikut (yang sudah diberikan), jawab pertanyaan siswa dengan jelas dan singkat, sertakan contoh jika perlu. Materi:\n\n${text}\n\nPertanyaan:\n${q}`;
+        const ans = await callAI(prompt,{max_tokens:500});
+        $('answer').innerText = ans;
+        // save QA
+        const qa = loadFromLocal('ag_qas') || [];
+        qa.push({q, a: ans, t: Date.now()}); saveToLocal('ag_qas', qa);
+      }catch(e){alert('Gagal menjawab: '+ e.message)}
+      finally{ $('askBtn').disabled=false; $('askBtn').innerText='Tanya'; }
+    }
+
+    // ------- Export / Download -------
+    function exportJSON(){
+      const data = {
+        title: loadFromLocal('ag_current_title') || '',
+        text: loadFromLocal('ag_current_text') || '',
+        summary: loadFromLocal('ag_current_summary') || $('summary').value,
+        questions: loadFromLocal('ag_current_questions') || $('questions').value,
+        qas: loadFromLocal('ag_qas') || [],
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'ai-guru-export.json'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    function downloadSummaryTxt(){
+      const s = $('summary').value || loadFromLocal('ag_current_summary') || '';
+      const blob = new Blob([s], {type:'text/plain'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ringkasan.txt'; a.click();
+    }
+
+    // ------- Settings modal (simple) -------
+    function openSettings(){
+      const existing = loadFromLocal('ag_settings') || {};
+      const apiKey = prompt('Masukkan API Key LLM (disimpan di browser, tidak dikirim ke server):', existing.apiKey || '');
+      if(apiKey === null) return; // cancel
+      const provider = prompt('Provider (ketik "openai" jika ragu):', existing.provider || 'openai') || 'openai';
+      const model = prompt('Model (contoh: gpt-4o-mini atau gpt-4o):', existing.model || 'gpt-4o-mini') || existing.model || 'gpt-4o-mini';
+      saveToLocal('ag_settings', {apiKey, provider, model});
+      alert('Settings disimpan (lokal). Pastikan API key valid.');
+    }
+
+    // ------- Init / events -------
+    document.getElementById('processBtn').addEventListener('click', processFile);
+    document.getElementById('regenerateSummary').addEventListener('click', generateSummary);
+    document.getElementById('regenerateQuestions').addEventListener('click', generateQuestions);
+    document.getElementById('askBtn').addEventListener('click', askAI);
+    document.getElementById('exportBtn').addEventListener('click', exportJSON);
+    document.getElementById('downloadPDFSummary').addEventListener('click', downloadSummaryTxt);
+    document.getElementById('openSettingsBtn').addEventListener('click', openSettings);
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      if(confirm('Hapus current materi & preview?')){
+        localStorage.removeItem('ag_current_text'); localStorage.removeItem('ag_current_summary'); localStorage.removeItem('ag_current_questions'); $('preview').innerText=''; $('summary').value=''; $('questions').value=''; $('titleInput').value='';
+      }
+    });
+
+    // on load: hydrate
+    window.addEventListener('load', ()=>{
+      const t = loadFromLocal('ag_current_text') || '';
+      if(t) $('preview').innerText = t.slice(0,2000) + (t.length>2000?'\n\n... (truncated preview)':'');
+      $('summary').value = loadFromLocal('ag_current_summary') || '';
+      $('questions').value = loadFromLocal('ag_current_questions') || '';
+      $('titleInput').value = loadFromLocal('ag_current_title') || '';
+      showHistory();
+    });
+
+  </script>
+</body>
+</html>
