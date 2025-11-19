@@ -4,131 +4,703 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AI Guru Pendamping Sekolah — Demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Simple, clean styling. Ubah sesuai selera. */
-    :root{--bg:#0f172a;--card:#111827;--muted:#9ca3af;--accent:#7c3aed}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#e6eef8;background:linear-gradient(180deg,#071129 0%, #071a2a 100%);}
-    .wrap{max-width:1100px;margin:28px auto;padding:20px;display:grid;grid-template-columns:360px 1fr;gap:18px}
-    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-    h1{font-size:18px;margin:0}
-    .card{background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
-    .sidebar .card{display:flex;flex-direction:column;gap:10px}
-    label{font-size:13px;color:var(--muted)}
-    input[type=file]{width:100%}
-    textarea,input,select,button{font-family:inherit}
-    textarea{width:100%;min-height:120px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    .actions{display:flex;gap:8px}
-    button{background:var(--accent);border:none;color:white;padding:8px 10px;border-radius:8px;cursor:pointer}
-    .muted{color:var(--muted);font-size:13px}
-    .section{margin-bottom:12px}
-    .history{max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px}
-    .history-item{background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);padding:8px;border-radius:8px;font-size:13px}
-    .main{display:flex;flex-direction:column;gap:12px}
-    .row{display:flex;gap:10px}
-    .panel{padding:12px;border-radius:12px;background:rgba(255,255,255,0.02)}
-    .controls{display:flex;gap:8px;align-items:center}
-    .small{font-size:13px;padding:6px 8px;border-radius:8px}
-    .card-title{font-weight:600;font-size:14px;margin-bottom:6px}
-    .flex{display:flex;gap:8px}
-    footer{grid-column:1/-1;margin-top:6px;color:var(--muted);font-size:13px;text-align:center}
-    .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:12px}
-    a{color:inherit}
+    /* CSS Variables for theming */
+    :root {
+      /* Light theme colors */
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --gray: #64748b;
+      --gray-light: #e2e8f0;
+      --gray-dark: #334155;
+      --white: #ffffff;
+      --black: #000000;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius: 0.5rem;
+      --transition: all 0.3s ease;
+    }
+
+    /* Dark theme colors */
+    [data-theme="dark"] {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #22d3ee;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --light: #1e293b;
+      --dark: #f8fafc;
+      --gray: #94a3b8;
+      --gray-light: #334155;
+      --gray-dark: #e2e8f0;
+      --white: #0f172a;
+      --black: #ffffff;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Global styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--white);
+      box-shadow: var(--shadow);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: var(--transition);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .logo span {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      color: var(--dark);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--gray-light);
+    }
+
+    /* Main container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Grid layout */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .grid-container {
+        grid-template-columns: 350px 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--gray-light);
+      border-radius: var(--radius);
+      background-color: var(--white);
+      color: var(--dark);
+      font-family: inherit;
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus,
+    input[type="file"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background-color: var(--gray-light);
+      color: var(--dark);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--gray);
+      color: var(--white);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: var(--white);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: var(--white);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* File upload */
+    .file-upload {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 2px dashed var(--gray-light);
+      border-radius: var(--radius);
+      background-color: rgba(79, 70, 229, 0.05);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary);
+      background-color: rgba(79, 70, 229, 0.1);
+    }
+
+    .file-upload i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .file-upload p {
+      margin: 0;
+      color: var(--gray-dark);
+    }
+
+    .file-upload input[type="file"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Preview */
+    .preview {
+      background-color: var(--light);
+      border-radius: var(--radius);
+      padding: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    /* History */
+    .history-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background-color: var(--light);
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+
+    .history-item:hover {
+      background-color: var(--gray-light);
+    }
+
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-item-title {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .history-item-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    .history-item-preview {
+      font-size: 0.875rem;
+      color: var(--gray-dark);
+      margin-bottom: 0.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .history-item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--gray-light);
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1rem;
+      font-weight: 500;
+      color: var(--gray);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab:hover {
+      color: var(--dark);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Q&A section */
+    .qa-section {
+      margin-top: 1rem;
+    }
+
+    .qa-input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .qa-input {
+      flex: 1;
+    }
+
+    .qa-answer {
+      background-color: var(--light);
+      border-radius: var(--radius);
+      padding: 1rem;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--white);
+      padding: 1.5rem 0;
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.875rem;
+      box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-top: auto;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--white);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+      .header-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .logo {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Utility classes */
+    .text-muted {
+      color: var(--gray);
+      font-size: 0.875rem;
+    }
+
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-5 { margin-top: 1.25rem; }
+
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-5 { margin-bottom: 1.25rem; }
+
+    .d-flex { display: flex; }
+    .align-items-center { align-items: center; }
+    .justify-content-between { justify-content: space-between; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>AI Guru Pendamping Sekolah</h1>
-        <div class="muted">Versi demo — HTML + CSS + JavaScript (no backend required)</div>
-      </div>
-      <div class="controls">
-        <div class="badge">LocalStorage · LLM API</div>
-        <button id="openSettingsBtn" class="small">Settings</button>
-      </div>
-    </header>
-
-    <!-- SIDEBAR: Upload, History, Settings -->
-    <aside class="sidebar">
-      <div class="card">
-        <div class="card-title">1) Upload Materi</div>
-        <div class="section">
-          <label for="fileInput">Pilih file (PDF / TXT)</label>
-          <input id="fileInput" type="file" accept=".pdf,.txt" />
-          <div class="muted" style="margin-top:6px">Jika PDF, sistem akan mengekstrak teks (menggunakan pdf.js CDN). Untuk file teks, cukup terbaca langsung.</div>
-        </div>
-
-        <div class="section">
-          <label for="titleInput">Judul Materi (opsional)</label>
-          <input id="titleInput" placeholder="Contoh: Bab 1 - Sistem Pencernaan" class="small" style="width:100%" />
-        </div>
-
-        <div class="actions">
-          <button id="processBtn">Proses Materi</button>
-          <button id="clearBtn" style="background:#374151">Hapus</button>
-        </div>
-
-        <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0">
-
-        <div class="card-title">Riwayat Belajar</div>
-        <div class="history" id="historyList"></div>
-
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="card-title">Quick Actions</div>
-        <div class="flex" style="flex-direction:column">
-          <button id="exportBtn" class="small">Export Ringkasan & Soal (.json)</button>
-          <button id="downloadPDFSummary" class="small" style="background:#0ea5a4">Download Ringkasan (TXT)</button>
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <div>
+          <h1>AI Guru Pendamping Sekolah</h1>
+          <span>Versi demo — HTML + CSS + JavaScript</span>
         </div>
       </div>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-      <div class="card panel">
-        <div class="card-title">Preview Materi</div>
-        <div id="preview" style="white-space:pre-wrap;max-height:220px;overflow:auto;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px"></div>
+      <div class="header-controls">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
       </div>
+    </div>
+  </header>
 
-      <div class="card panel row">
-        <div style="flex:1">
-          <div class="card-title">Ringkasan Otomatis</div>
-          <textarea id="summary" placeholder="Ringkasan akan muncul di sini..."></textarea>
-          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="regenerateSummary" class="small">Regenerate</button></div>
+  <div class="container">
+    <div class="grid-container">
+      <!-- Sidebar -->
+      <aside>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-upload"></i>
+              Upload Materi
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="titleInput">Judul Materi (opsional)</label>
+            <input id="titleInput" placeholder="Contoh: Bab 1 - Sistem Pencernaan" type="text">
+          </div>
+          
+          <div class="form-group">
+            <div class="file-upload">
+              <input id="fileInput" type="file" accept=".pdf,.txt">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Klik atau seret file ke sini (PDF / TXT)</p>
+            </div>
+          </div>
+          
+          <div class="btn-group">
+            <button id="processBtn" class="btn btn-primary btn-block">
+              <i class="fas fa-cogs"></i>
+              Proses Materi
+            </button>
+            <button id="clearBtn" class="btn btn-secondary">
+              <i class="fas fa-trash"></i>
+              Hapus
+            </button>
+          </div>
         </div>
-
-        <div style="width:420px">
-          <div class="card-title">Soal Latihan (Auto)</div>
-          <textarea id="questions" placeholder="Soal & kunci jawaban akan muncul di sini..."></textarea>
-          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="regenerateQuestions" class="small">Regenerate</button></div>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-history"></i>
+              Riwayat Belajar
+            </div>
+          </div>
+          <div class="history-list" id="historyList"></div>
         </div>
-      </div>
-
-      <div class="card panel">
-        <div class="card-title">Guru Virtual — Tanya & Jawab</div>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="userQuestion" placeholder="Tanyakan sesuatu tentang materi ini..." style="flex:1" />
-          <button id="askBtn">Tanya</button>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-tools"></i>
+              Quick Actions
+            </div>
+          </div>
+          <div class="btn-group" style="flex-direction: column;">
+            <button id="exportBtn" class="btn btn-secondary">
+              <i class="fas fa-download"></i>
+              Export Ringkasan & Soal (.json)
+            </button>
+            <button id="downloadPDFSummary" class="btn btn-success">
+              <i class="fas fa-file-download"></i>
+              Download Ringkasan (TXT)
+            </button>
+          </div>
         </div>
-        <div id="answer" style="white-space:pre-wrap;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;min-height:60px"></div>
-      </div>
-
-      <div class="card panel">
-        <div class="card-title">Catatan Teknis (untuk developer)</div>
-        <ol style="margin:0;padding-left:16px;color:var(--muted)">
-          <li>Masukkan API Key LLM di Settings (disimpan di localStorage)</li>
-          <li>Default endpoint untuk OpenAI v1 ChatCompletions. Edit di bagian <code>callAI()</code> jika pakai provider berbeda.</li>
-          <li>Semua data pengguna disimpan di <code>localStorage</code>. Tidak ada backend pada demo ini.</li>
-        </ol>
-      </div>
-
-    </main>
-
-    <footer>
-      Dibuat untuk demo — silakan modifikasi. Jika ingin saya kirim file ZIP atau versi terpisah (index + pdf.js), beri tahu.
-    </footer>
+      </aside>
+      
+      <!-- Main Content -->
+      <main>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-eye"></i>
+              Preview Materi
+            </div>
+          </div>
+          <div id="preview" class="preview"></div>
+        </div>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-magic"></i>
+              Fitur AI
+            </div>
+          </div>
+          
+          <div class="tabs">
+            <div class="tab active" data-tab="summary">Ringkasan</div>
+            <div class="tab" data-tab="questions">Soal Latihan</div>
+            <div class="tab" data-tab="qa">Tanya Jawab</div>
+          </div>
+          
+          <div class="tab-content active" id="summary-tab">
+            <div class="form-group">
+              <textarea id="summary" placeholder="Ringkasan akan muncul di sini..."></textarea>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button id="regenerateSummary" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i>
+                Regenerate
+              </button>
+            </div>
+          </div>
+          
+          <div class="tab-content" id="questions-tab">
+            <div class="form-group">
+              <textarea id="questions" placeholder="Soal & kunci jawaban akan muncul di sini..."></textarea>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button id="regenerateQuestions" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i>
+                Regenerate
+              </button>
+            </div>
+          </div>
+          
+          <div class="tab-content" id="qa-tab">
+            <div class="qa-section">
+              <div class="qa-input-group">
+                <input id="userQuestion" class="qa-input" placeholder="Tanyakan sesuatu tentang materi ini...">
+                <button id="askBtn" class="btn btn-primary">
+                  <i class="fas fa-paper-plane"></i>
+                  Tanya
+                </button>
+              </div>
+              <div id="answer" class="qa-answer"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-info-circle"></i>
+              Catatan Teknis
+            </div>
+          </div>
+          <div class="text-muted">
+            <ol style="padding-left: 1.5rem;">
+              <li>Semua data pengguna disimpan di localStorage browser.</li>
+              <li>API key sudah tertanam dalam kode, tidak perlu input manual.</li>
+              <li>Default endpoint untuk OpenAI v1 ChatCompletions.</li>
+            </ol>
+          </div>
+        </div>
+      </main>
+    </div>
   </div>
+
+  <footer>
+    <p>Dibuat untuk demo — silakan modifikasi. Jika ingin saya kirim file ZIP atau versi terpisah, beri tahu.</p>
+  </footer>
 
   <!-- pdf.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -147,12 +719,74 @@
     function saveToLocal(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
     function loadFromLocal(key, fallback=null){ try{ const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback }catch(e){return fallback} }
 
+    // ------- Theme Toggle -------
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.querySelector('#themeToggle i');
+      icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // ------- Tab functionality -------
+    function initTabs() {
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.getAttribute('data-tab');
+          
+          // Remove active class from all tabs and contents
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(tc => tc.classList.remove('active'));
+          
+          // Add active class to clicked tab and corresponding content
+          tab.classList.add('active');
+          document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+      });
+    }
+
+    // ------- History -------
     function showHistory(){
       const list = $('historyList'); list.innerHTML = '';
       const hist = loadFromLocal('ag_hist') || [];
+      
+      if (hist.length === 0) {
+        list.innerHTML = '<p class="text-muted">Belum ada riwayat</p>';
+        return;
+      }
+      
       hist.slice().reverse().forEach((item, idx)=>{
         const el = document.createElement('div'); el.className='history-item';
-        el.innerHTML = `<strong>${item.title||'Materi tanpa judul'}</strong><div class='muted'>${new Date(item.t).toLocaleString()}</div><div style='margin-top:6px'>${(item.summary||'').slice(0,180)}${(item.summary && item.summary.length>180)?'...':''}</div><div style='display:flex;gap:6px;margin-top:8px'><button class='small' onclick='loadHistory(${hist.length-1-idx})'>Load</button><button class='small' onclick='deleteHistory(${hist.length-1-idx})' style='background:#b91c1c'>Delete</button></div>`;
+        el.innerHTML = `
+          <div class="history-item-header">
+            <div class="history-item-title">${item.title||'Materi tanpa judul'}</div>
+            <div class="history-item-date">${new Date(item.t).toLocaleString()}</div>
+          </div>
+          <div class="history-item-preview">${(item.summary||'').slice(0,180)}${(item.summary && item.summary.length>180)?'...':''}</div>
+          <div class="history-item-actions">
+            <button class="btn btn-sm btn-primary" onclick='loadHistory(${hist.length-1-idx})'>
+              <i class="fas fa-folder-open"></i> Load
+            </button>
+            <button class="btn btn-sm btn-danger" onclick='deleteHistory(${hist.length-1-idx})'>
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        `;
         list.appendChild(el);
       });
     }
@@ -178,6 +812,7 @@
     }
 
     function deleteHistory(index){
+      if(!confirm('Hapus riwayat ini?')) return;
       const hist = loadFromLocal('ag_hist') || [];
       hist.splice(index,1);
       saveToLocal('ag_hist', hist);
@@ -204,7 +839,8 @@
     async function processFile(){
       const f = $('fileInput').files[0];
       if(!f) return alert('Pilih file terlebih dulu');
-      $('processBtn').disabled = true; $('processBtn').innerText='Memproses...';
+      $('processBtn').disabled = true; 
+      $('processBtn').innerHTML = '<span class="spinner"></span> Memproses...';
       try{
         let text='';
         if(f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')){
@@ -222,7 +858,10 @@
         // push to history
         pushHistory({t:Date.now(), title: $('titleInput').value || f.name, text, summary: $('summary').value, questions: $('questions').value});
       }catch(e){alert('Error: '+ e.message)}
-      finally{ $('processBtn').disabled=false; $('processBtn').innerText='Proses Materi'; }
+      finally{ 
+        $('processBtn').disabled=false; 
+        $('processBtn').innerHTML = '<i class="fas fa-cogs"></i> Proses Materi'; 
+      }
     }
 
     // ------- Simple chunking (by characters) -------
@@ -231,93 +870,104 @@
     }
 
     // ------- API Call (ganti sesuai provider) -------
-    // NOTE: Anda perlu menyimpan API key di Settings sebelum memanggil.
+    // NOTE: API key sudah tertanam dalam kode
     async function callAI(prompt) {
-    const settings = JSON.parse(localStorage.getItem("ag_settings") || "{}");
-    const API_KEY = settings.apiKey;
-    const model = "z-ai/glm-4.5-air";  // nama model yang benar di OpenRouter
+      // API key sudah tertanam
+      const API_KEY = "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";
+      const model = "z-ai/glm-4.5-air";
 
-    const body = {
-        model: model,
-        messages: [
-        { role: "system", content: "You are a helpful teacher." },
-        { role: "user", content: prompt }
-        ],
-        // bisa menambahkan konfigurasi ekstra jika didukung:
-        reasoning: { enabled: settings.reasoningEnabled ?? false },
-        temperature: settings.temperature ?? 0.7,
-        max_tokens: settings.maxTokens ?? 1024
-    };
+      const body = {
+          model: model,
+          messages: [
+              { role: "system", content: "You are a helpful teacher." },
+              { role: "user", content: prompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 1024
+      };
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify(body)
-    });
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${API_KEY}`,
+              "HTTP-Referer": "yourwebsite.com",
+              "X-Title": "AI Guru Pendamping"
+          },
+          body: JSON.stringify(body)
+      });
 
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error("OpenRouter API error: " + err);
-    }
+      if (!res.ok) {
+          const err = await res.text();
+          throw new Error("OpenRouter API error: " + err);
+      }
 
-    const data = await res.json();
-    // Struktur respons biasanya mirip OpenAI:
-    return data.choices[0].message.content;
+      const data = await res.json();
+      return data.choices[0].message.content;
     }
 
     // ------- High-level features -------
     async function generateSummary(){
       const text = loadFromLocal('ag_current_text');
       if(!text) return alert('Tidak ada materi. Upload file terlebih dulu.');
-      $('regenerateSummary').disabled=true; $('regenerateSummary').innerText='Menghasilkan...';
+      $('regenerateSummary').disabled=true; 
+      $('regenerateSummary').innerHTML = '<span class="spinner"></span> Menghasilkan...';
       try{
         // if text is huge, summarize in chunks then combine
         const chunks = chunkText(text, 2500);
         const summaries = [];
         for(const c of chunks){
           const prompt = `Ringkas materi berikut menjadi ringkasan pelajar (bahasa Indonesia) sekitar 6-10 poin utama. Gunakan bahasa mudah dipahami siswa:\n\n${c}`;
-          const s = await callAI(prompt,{max_tokens:400});
+          const s = await callAI(prompt);
           summaries.push(s);
         }
         // gabungkan dan ringkas lagi
         const combined = summaries.join('\n\n');
-        const final = await callAI(`Gabungkan ringkasan-ringkasan berikut menjadi satu ringkasan terstruktur 8-12 kalimat, gunakan bahasa yang mudah dipahami siswa:\n\n${combined}`, {max_tokens:500});
+        const final = await callAI(`Gabungkan ringkasan-ringkasan berikut menjadi satu ringkasan terstruktur 8-12 kalimat, gunakan bahasa yang mudah dipahami siswa:\n\n${combined}`);
         $('summary').value = final;
         saveToLocal('ag_current_summary', final);
       }catch(e){alert('Gagal membuat ringkasan: '+ e.message)}
-      finally{ $('regenerateSummary').disabled=false; $('regenerateSummary').innerText='Regenerate'; }
+      finally{ 
+        $('regenerateSummary').disabled=false; 
+        $('regenerateSummary').innerHTML = '<i class="fas fa-sync-alt"></i> Regenerate'; 
+      }
     }
 
     async function generateQuestions(){
       const text = loadFromLocal('ag_current_text');
       if(!text) return alert('Tidak ada materi. Upload file terlebih dulu.');
-      $('regenerateQuestions').disabled=true; $('regenerateQuestions').innerText='Menghasilkan...';
+      $('regenerateQuestions').disabled=true; 
+      $('regenerateQuestions').innerHTML = '<span class="spinner"></span> Menghasilkan...';
       try{
         const prompt = `Dari materi ini, buatkan 7 soal latihan beserta jawaban singkat. Variasikan: 3 pilihan ganda (sertakan 4 opsi & jawaban benar), 2 soal isian singkat, 2 soal esai pendek yang bisa dinilai. Berikan juga kunci jawaban. Materi:\n\n${text}`;
-        const resp = await callAI(prompt,{max_tokens:700});
+        const resp = await callAI(prompt);
         $('questions').value = resp;
         saveToLocal('ag_current_questions', resp);
       }catch(e){alert('Gagal membuat soal: '+ e.message)}
-      finally{ $('regenerateQuestions').disabled=false; $('regenerateQuestions').innerText='Regenerate'; }
+      finally{ 
+        $('regenerateQuestions').disabled=false; 
+        $('regenerateQuestions').innerHTML = '<i class="fas fa-sync-alt"></i> Regenerate'; 
+      }
     }
 
     async function askAI(){
       const q = $('userQuestion').value.trim();
       if(!q) return alert('Tulis pertanyaan dulu');
-      $('askBtn').disabled=true; $('askBtn').innerText='Menjawab...';
+      $('askBtn').disabled=true; 
+      $('askBtn').innerHTML = '<span class="spinner"></span> Menjawab...';
       try{
         const text = loadFromLocal('ag_current_text') || '';
         const prompt = `Anda adalah guru virtual. Berdasarkan materi berikut (yang sudah diberikan), jawab pertanyaan siswa dengan jelas dan singkat, sertakan contoh jika perlu. Materi:\n\n${text}\n\nPertanyaan:\n${q}`;
-        const ans = await callAI(prompt,{max_tokens:500});
+        const ans = await callAI(prompt);
         $('answer').innerText = ans;
         // save QA
         const qa = loadFromLocal('ag_qas') || [];
         qa.push({q, a: ans, t: Date.now()}); saveToLocal('ag_qas', qa);
       }catch(e){alert('Gagal menjawab: '+ e.message)}
-      finally{ $('askBtn').disabled=false; $('askBtn').innerText='Tanya'; }
+      finally{ 
+        $('askBtn').disabled=false; 
+        $('askBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Tanya'; 
+      }
     }
 
     // ------- Export / Download -------
@@ -341,33 +991,43 @@
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ringkasan.txt'; a.click();
     }
 
-    // ------- Settings modal (simple) -------
-    function openSettings(){
-      const existing = loadFromLocal('ag_settings') || {};
-      const apiKey = prompt('Masukkan API Key LLM (disimpan di browser, tidak dikirim ke server):', existing.apiKey || '');
-      if(apiKey === null) return; // cancel
-      const provider = prompt('Provider (ketik "openai" jika ragu):', existing.provider || 'openai') || 'openai';
-      const model = prompt('Model (contoh: gpt-4o-mini atau gpt-4o):', existing.model || 'gpt-4o-mini') || existing.model || 'gpt-4o-mini';
-      saveToLocal('ag_settings', {apiKey, provider, model});
-      alert('Settings disimpan (lokal). Pastikan API key valid.');
-    }
-
     // ------- Init / events -------
-    document.getElementById('processBtn').addEventListener('click', processFile);
-    document.getElementById('regenerateSummary').addEventListener('click', generateSummary);
-    document.getElementById('regenerateQuestions').addEventListener('click', generateQuestions);
-    document.getElementById('askBtn').addEventListener('click', askAI);
-    document.getElementById('exportBtn').addEventListener('click', exportJSON);
-    document.getElementById('downloadPDFSummary').addEventListener('click', downloadSummaryTxt);
-    document.getElementById('openSettingsBtn').addEventListener('click', openSettings);
-    document.getElementById('clearBtn').addEventListener('click', ()=>{
-      if(confirm('Hapus current materi & preview?')){
-        localStorage.removeItem('ag_current_text'); localStorage.removeItem('ag_current_summary'); localStorage.removeItem('ag_current_questions'); $('preview').innerText=''; $('summary').value=''; $('questions').value=''; $('titleInput').value='';
-      }
-    });
-
-    // on load: hydrate
-    window.addEventListener('load', ()=>{
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize theme
+      initTheme();
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      
+      // Initialize tabs
+      initTabs();
+      
+      // File processing
+      document.getElementById('processBtn').addEventListener('click', processFile);
+      document.getElementById('regenerateSummary').addEventListener('click', generateSummary);
+      document.getElementById('regenerateQuestions').addEventListener('click', generateQuestions);
+      document.getElementById('askBtn').addEventListener('click', askAI);
+      document.getElementById('exportBtn').addEventListener('click', exportJSON);
+      document.getElementById('downloadPDFSummary').addEventListener('click', downloadSummaryTxt);
+      document.getElementById('clearBtn').addEventListener('click', ()=>{
+        if(confirm('Hapus current materi & preview?')){
+          localStorage.removeItem('ag_current_text'); 
+          localStorage.removeItem('ag_current_summary'); 
+          localStorage.removeItem('ag_current_questions'); 
+          $('preview').innerText=''; 
+          $('summary').value=''; 
+          $('questions').value=''; 
+          $('titleInput').value='';
+        }
+      });
+      
+      // File input change event
+      document.getElementById('fileInput').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || '';
+        if (fileName) {
+          document.querySelector('.file-upload p').textContent = fileName;
+        }
+      });
+      
+      // Load saved data
       const t = loadFromLocal('ag_current_text') || '';
       if(t) $('preview').innerText = t.slice(0,2000) + (t.length>2000?'\n\n... (truncated preview)':'');
       $('summary').value = loadFromLocal('ag_current_summary') || '';
@@ -375,7 +1035,6 @@
       $('titleInput').value = loadFromLocal('ag_current_title') || '';
       showHistory();
     });
-
   </script>
 </body>
 </html>
