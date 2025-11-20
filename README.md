@@ -14,11 +14,11 @@ Instalasi
 
 Clone repository:
 
-    git clone https://github.com/USERNAME/REPO-NAME.git
+    git clone https://github.com/zinedine098/RingkasMateri_Dan_Soal/
 
 Masuk ke folder proyek:
 
-    cd REPO-NAME
+    cd RingkasMateri_Dan_Soal
 
 Tidak diperlukan instalasi tambahan.
 
