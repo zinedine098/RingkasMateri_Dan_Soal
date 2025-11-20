@@ -14,7 +14,7 @@ Instalasi
 
 Clone repository:
 
-    git clonehttps://github.com/zinedine098/RingkasMateri_Dan_Soal/
+    git clone https://github.com/zinedine098/RingkasMateri_Dan_Soal/
 
 Masuk ke folder proyek:
 
