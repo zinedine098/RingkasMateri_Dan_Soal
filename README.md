@@ -4,8 +4,6 @@ Aplikasi ini adalah client-side AI Chat yang menggunakan layanan OpenRouter untu
 
 
 Fitur Utama
-
-
 - Tidak memerlukan input API key dari pengguna
 - Berbasis HTML, CSS, dan JavaScript (tanpa backend)
 - Mendukung model OpenRouter (default: z-ai/glm-4.5-air)
@@ -54,8 +52,6 @@ Pengguna tidak perlu:
 Semua berjalan otomatis di background.
 
 Cara Menggunakan Aplikasi
-
-
 1. Buka aplikasi di browser.
 2. Ketik pertanyaan atau prompt.
 3. Klik "Send" atau tekan Enter.
@@ -64,8 +60,6 @@ Cara Menggunakan Aplikasi
 
 
 Fungsi Utama: callAI()
-
-
 Berikut fungsi utama untuk melakukan request ke OpenRouter:
 
     async function callAI(prompt) {
@@ -99,14 +93,9 @@ Berikut fungsi utama untuk melakukan request ke OpenRouter:
 
 
 Catatan Keamanan
-
-
 - Jika repository Anda PUBLIC, semua orang dapat melihat API key.
 - Sangat disarankan menjadikan repository PRIVATE atau gunakan backend proxy.
 - Jangan menaruh API key pribadi di repositori publik.
 
-====================================================================
 Lisensi
-====================================================================
-
 Proyek ini bebas dimodifikasi dan digunakan sesuai kebutuhan Anda.
