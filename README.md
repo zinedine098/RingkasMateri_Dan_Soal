@@ -2,9 +2,9 @@
 
 Aplikasi ini adalah client-side AI Chat yang menggunakan layanan OpenRouter untuk memanggil model LLM seperti "z-ai/glm-4.5-air". API Key sudah ditanam otomatis ke localStorage sehingga pengguna tidak perlu memasukkan API Key secara manual.
 
-====================================================================
+
 Fitur Utama
-====================================================================
+
 
 - Tidak memerlukan input API key dari pengguna
 - Berbasis HTML, CSS, dan JavaScript (tanpa backend)
@@ -12,9 +12,7 @@ Fitur Utama
 - Pengaturan otomatis disimpan di localStorage
 - Simple dan cepat digunakan
 
-====================================================================
 Instalasi
-====================================================================
 
 Clone repository:
 
@@ -26,9 +24,7 @@ Masuk ke folder proyek:
 
 Tidak diperlukan instalasi tambahan.
 
-====================================================================
 Menjalankan Aplikasi
-====================================================================
 
 Buka file index.html secara langsung:
 
@@ -39,9 +35,7 @@ atau menggunakan Live Server di VSCode:
     code .
     (klik "Open With Live Server")
 
-====================================================================
 Cara Kerja API Key
-====================================================================
 
 Project ini otomatis menyimpan API key ke localStorage menggunakan script:
 
@@ -59,9 +53,8 @@ Pengguna tidak perlu:
 
 Semua berjalan otomatis di background.
 
-====================================================================
 Cara Menggunakan Aplikasi
-====================================================================
+
 
 1. Buka aplikasi di browser.
 2. Ketik pertanyaan atau prompt.
@@ -69,9 +62,9 @@ Cara Menggunakan Aplikasi
 4. Sistem akan menghubungi model LLM melalui OpenRouter.
 5. Hasil akan tampil pada layar chat.
 
-====================================================================
+
 Fungsi Utama: callAI()
-====================================================================
+
 
 Berikut fungsi utama untuk melakukan request ke OpenRouter:
 
@@ -104,9 +97,9 @@ Berikut fungsi utama untuk melakukan request ke OpenRouter:
         return (await res.json()).choices[0].message.content;
     }
 
-====================================================================
+
 Catatan Keamanan
-====================================================================
+
 
 - Jika repository Anda PUBLIC, semua orang dapat melihat API key.
 - Sangat disarankan menjadikan repository PRIVATE atau gunakan backend proxy.
